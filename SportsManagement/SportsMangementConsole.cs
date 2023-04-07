@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace SportsManagement
 {
+    public static class EventType
+    {
+        public static readonly string Individual = "Individual";
+        public static readonly string Group = "Group";
+    }
     internal class SportsMangementConsole
     {
         private SqlConnection conn;
@@ -69,6 +74,8 @@ namespace SportsManagement
                 g) View score card
                 h) add score card
                 i) update score card
+                j) add individual player
+                k) add group player
                 0) Exit");
         }
         public void viewSports()
@@ -111,9 +118,22 @@ namespace SportsManagement
             }
             reader.Close();
         }
+        public void viewTournaments(string type)
+        {
+            SqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT tournaments.tournementID ,tournaments.tournamentName,sports.sportsName " +
+                $"FROM tournaments INNER JOIN sports ON tournaments.sportsID=sports.sportsId WHERE eventType = '{type}'";
+            SqlDataReader reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                Console.WriteLine("ID " + reader.GetInt32(0) + " Tournament name:  " + 
+                    reader.GetString(1)+ " Sport Name "+reader.GetString(2));
+            }
+            reader.Close();
+        }
         public void AddTournament()
         {
-            string eventType = "Group";
+            string eventType = EventType.Group;
             SqlCommand cmd = conn.CreateCommand();
             Console.WriteLine("Enter the tournament name");
             string tournamentName = Console.ReadLine();
@@ -122,7 +142,7 @@ namespace SportsManagement
             string sportId = Console.ReadLine();
             Console.WriteLine("Is this a group event[Y/n]");
             string eventTypeBool = Console.ReadLine();
-            if(eventTypeBool == "n" || eventTypeBool == "N")eventType= "Individual";
+            if(eventTypeBool == "n" || eventTypeBool == "N")eventType= EventType.Individual;
             cmd.CommandText = $"insert into tournaments values('{tournamentName}','{sportId}','{eventType}')";
             cmd.ExecuteReader().Close();
             conn.Close();
@@ -185,6 +205,39 @@ namespace SportsManagement
             SqlCommand cmd = conn.CreateCommand();
             cmd.CommandText = $"DELETE FROM scoreCard where scoreCardID= {id}";
             cmd.ExecuteReader().Close();
+        }
+        public void AddSinglePlayer()
+        {
+            SqlCommand cmd = conn.CreateCommand();
+            Console.WriteLine("Enter the player name");
+            string playerName = Console.ReadLine();
+            viewTournaments(EventType.Individual);
+            Console.WriteLine("Enter the Tournament Id of you want to participate");
+            string tournamentId= Console.ReadLine();
+            cmd.CommandText = $"insert into players values('{playerName}','{tournamentId}')";
+            cmd.ExecuteReader().Close();
+            conn.Close();
+        }
+        public void AddGroup()
+        {
+            SqlCommand cmd = conn.CreateCommand();
+            Console.WriteLine("Enter the Group name");
+            string groupName = Console.ReadLine();
+            viewTournaments(EventType.Group);
+            Console.WriteLine("Enter the Tournament Id of you want to participate");
+            string tournamentId= Console.ReadLine();
+            while (true)
+            {
+                Console.WriteLine("Enter the player name");
+                string playerName = Console.ReadLine();
+                if (playerName == "0") break;
+                using (SqlCommand cmd_new=new SqlCommand("insert into players OUTPUT INSERTED.ID VALUES(@playerName,@tournamentId)"))
+                {
+                    cmd_new.Parameters.Add("")
+                }
+                cmd.ExecuteReader().Close();
+            }
+            conn.Close();
         }
     }
 }
