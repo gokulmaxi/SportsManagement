@@ -7,7 +7,8 @@ CREATE TABLE sports (
 CREATE TABLE tournaments (
     tournementID int NOT NULL PRIMARY KEY IDENTITY,
     tournamentName VARCHAR(50) NOT NULL,
-    sportsID int FOREIGN KEY REFERENCES sports(sportsId)
+    sportsID int FOREIGN KEY REFERENCES sports(sportsId) ON DELETE CASCADE,
+	eventType varchar(50)
 )
 -- create scoreCard table
 CREATE TABLE scoreCard (
@@ -16,7 +17,7 @@ CREATE TABLE scoreCard (
 	teamAScore int NOT NULL,
 	teamBScore int not NULL,
 	winner VARCHAR(50),
-    tournamentID int FOREIGN KEY REFERENCES tournaments(tournementID)
+    tournamentID int FOREIGN KEY REFERENCES tournaments(tournementID) ON DELETE CASCADE
 )
 SELECT scoreCardID,MatchName,teamAScore,teamBScore,winner FROM scoreCard
 --Trigger to update the winner

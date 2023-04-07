@@ -113,13 +113,17 @@ namespace SportsManagement
         }
         public void AddTournament()
         {
+            string eventType = "Group";
             SqlCommand cmd = conn.CreateCommand();
             Console.WriteLine("Enter the tournament name");
             string tournamentName = Console.ReadLine();
             viewSports();
             Console.WriteLine("Enter the sports Id of your tournament");
             string sportId = Console.ReadLine();
-            cmd.CommandText = $"insert into tournaments values('{tournamentName}','{sportId}')";
+            Console.WriteLine("Is this a group event[Y/n]");
+            string eventTypeBool = Console.ReadLine();
+            if(eventTypeBool == "n" || eventTypeBool == "N")eventType= "Individual";
+            cmd.CommandText = $"insert into tournaments values('{tournamentName}','{sportId}','{eventType}')";
             cmd.ExecuteReader().Close();
             conn.Close();
         }
@@ -129,7 +133,7 @@ namespace SportsManagement
             Console.WriteLine("Enter the Id of the tournament you want to delete");
             string id= Console.ReadLine();
             SqlCommand cmd = conn.CreateCommand();
-            cmd.CommandText = $"DELETE FROM tournaments where tournamentID= {id}";
+            cmd.CommandText = $"DELETE FROM tournaments where tournementID= {id}";
             cmd.ExecuteReader().Close();
         }
         public void viewScoreCards()
